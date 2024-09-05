@@ -2,17 +2,18 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { AxiosError } from 'axios';
 import { catchError, firstValueFrom } from 'rxjs';
+import { ProductsResponseDto } from 'src/shared/dto/products-response.dto';
 
 @Injectable()
 export class ApiClientService {
   private readonly logger = new Logger(ApiClientService.name);
   constructor(private readonly httpService: HttpService) {}
 
-  async fetchProducts(): Promise<any[]> {
+  async fetchProducts(): Promise<ProductsResponseDto[]> {
     try {
       const { data } = await firstValueFrom(
         this.httpService
-          .get<any[]>(process.env.CONTENTFUL_URL, {
+          .get<ProductsResponseDto[]>(process.env.CONTENTFUL_URL, {
             baseURL: `spaces/${process.env.CONTENTFUL_SPACE_ID}/environments/${process.env.CONTENTFUL_ENVIRONMENT}/entries`,
             params: {
               access_token: process.env.CONTENTFUL_ACCESS_TOKEN,
