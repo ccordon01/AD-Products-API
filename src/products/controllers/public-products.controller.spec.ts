@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProductsController } from './products.controller';
-import { ProductsService } from './products.service';
-import { ProductsRepository } from './repository/products.repository';
-import { ApiClientService } from '../api-client/api-client.service';
+import { ProductsService } from '../products.service';
+import { ProductsRepository } from '../repository/products.repository';
+import { ApiClientService } from '../../api-client/api-client.service';
+import { PublicProductsController } from './public-products.controller';
 
-describe('ProductsController', () => {
-  let controller: ProductsController;
+describe('PublicProductsController', () => {
+  let controller: PublicProductsController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -24,9 +24,9 @@ describe('ProductsController', () => {
           },
         },
       ],
-      controllers: [ProductsController],
+      controllers: [PublicProductsController],
     }).compile();
-    controller = module.get<ProductsController>(ProductsController);
+    controller = module.get<PublicProductsController>(PublicProductsController);
   });
 
   it('should be defined', () => {

@@ -1,8 +1,8 @@
 import { Controller, Post } from '@nestjs/common';
-import { ProductsService } from './products.service';
+import { ProductsService } from '../products.service';
 
 @Controller('products')
-export class ProductsController {
+export class PublicProductsController {
   constructor(private productsService: ProductsService) {}
 
   @Post('fetch')

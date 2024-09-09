@@ -4,7 +4,7 @@ import { Product, ProductSchema } from './repository/schemas/product.schema';
 import { ProductsRepository } from './repository/products.repository';
 import { ProductsService } from './products.service';
 import { ApiClientModule } from '../api-client/api-client.module';
-import { ProductsController } from './products.controller';
+import { PublicProductsController } from './controllers/public-products.controller';
 
 @Module({
   imports: [
@@ -18,6 +18,6 @@ export class ProductsModule {}
 
 @Module({
   imports: [ProductsModule],
-  controllers: [ProductsController],
+  controllers: [PublicProductsController],
 })
 export class PublicProductsModule {}
