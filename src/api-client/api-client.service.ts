@@ -13,13 +13,15 @@ export class ApiClientService {
     try {
       const { data } = await firstValueFrom(
         this.httpService
-          .get<ProductsResponseDto>(process.env.CONTENTFUL_URL, {
-            baseURL: `spaces/${process.env.CONTENTFUL_SPACE_ID}/environments/${process.env.CONTENTFUL_ENVIRONMENT}/entries`,
-            params: {
-              access_token: process.env.CONTENTFUL_ACCESS_TOKEN,
-              content_type: process.env.CONTENTFUL_PRODUCTS_CONTENT_TYPE,
+          .get<ProductsResponseDto>(
+            `${process.env.CONTENTFUL_URL}/spaces/${process.env.CONTENTFUL_SPACE_ID}/environments/${process.env.CONTENTFUL_ENVIRONMENT}/entries`,
+            {
+              params: {
+                access_token: process.env.CONTENTFUL_ACCESS_TOKEN,
+                content_type: process.env.CONTENTFUL_CONTENT_TYPE,
+              },
             },
-          })
+          )
           .pipe(
             catchError((error: AxiosError) => {
               this.logger.error(error?.response?.data);
