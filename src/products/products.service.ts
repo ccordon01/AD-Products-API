@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ProductsRepository } from './repository/products.repository';
-import { ApiClientService } from 'src/api-client/api-client.service';
+import { ApiClientService } from '../api-client/api-client.service';
 
 @Injectable()
 export class ProductsService {
@@ -12,11 +12,16 @@ export class ProductsService {
   async fetchAndSaveProducts(): Promise<void> {
     const productsFromApi = await this.apiClientService.fetchProducts();
     await this.productsRepository.createProducts(
-      productsFromApi.map(({ }) => ({
-        productSku: product.productSku,
-        productName: product.productName,
-        productBrand: product.productBrand,
-        productPrice: product.productPrice,
+      productsFromApi?.items.map(({ fields: product }) => ({
+        productSku: product.sku,
+        productName: product.name,
+        productBrand: product.brand,
+        productModel: product.model,
+        productCategory: product.category,
+        productColor: product.color,
+        productPrice: product.price,
+        productCurrency: product.currency,
+        productStock: product.stock,
       })),
     );
   }

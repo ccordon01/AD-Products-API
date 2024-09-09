@@ -9,11 +9,11 @@ export class ApiClientService {
   private readonly logger = new Logger(ApiClientService.name);
   constructor(private readonly httpService: HttpService) {}
 
-  async fetchProducts(): Promise<ProductsResponseDto[]> {
+  async fetchProducts(): Promise<ProductsResponseDto> {
     try {
       const { data } = await firstValueFrom(
         this.httpService
-          .get<ProductsResponseDto[]>(process.env.CONTENTFUL_URL, {
+          .get<ProductsResponseDto>(process.env.CONTENTFUL_URL, {
             baseURL: `spaces/${process.env.CONTENTFUL_SPACE_ID}/environments/${process.env.CONTENTFUL_ENVIRONMENT}/entries`,
             params: {
               access_token: process.env.CONTENTFUL_ACCESS_TOKEN,
