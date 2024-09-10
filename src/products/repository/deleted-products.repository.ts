@@ -20,4 +20,10 @@ export class DeletedProductsRepository {
     });
     return createdDeletedProduct.save();
   }
+
+  async findDeletedProductByProductSku(
+    productSku: string,
+  ): Promise<DeletedProduct> {
+    return this.deletedProductModel.findOne({ productSku }).exec();
+  }
 }

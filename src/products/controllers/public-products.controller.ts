@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import { ProductsService } from '../products.service';
 import { ApiTags } from '@nestjs/swagger';
 import { FilterProductsDto } from '../dto/filter-products.dto';
@@ -19,5 +19,10 @@ export class PublicProductsController {
     @Query() filterProductsDto: FilterProductsDto,
   ): Promise<ResponseFilterProductsDto> {
     return this.productsService.findFilteredProducts(filterProductsDto);
+  }
+
+  @Delete(':productSku')
+  deleteProduct(@Param('productSku') productSku: string): Promise<void> {
+    return this.productsService.deleteProduct(productSku);
   }
 }

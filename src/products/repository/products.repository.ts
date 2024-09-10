@@ -103,4 +103,8 @@ export class ProductsRepository {
       products,
     };
   }
+
+  async findProductByProductSku(productSku: string): Promise<Product> {
+    return this.productModel.findOne({ productSku }).exec();
+  }
 }
