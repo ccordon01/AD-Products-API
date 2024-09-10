@@ -12,8 +12,7 @@ export class ProductsRepository {
   ) {}
 
   async createProduct(createProudctDto: CreateProductDto): Promise<Product> {
-    const createdProduct = new this.productModel(createProudctDto);
-    return createdProduct.save();
+    return this.productModel.create(createProudctDto);
   }
 
   async createProducts(createProductsDto: CreateProductDto[]) {
