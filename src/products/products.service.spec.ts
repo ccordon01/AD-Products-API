@@ -4,10 +4,16 @@ import { ProductsRepository } from './repository/products.repository';
 import { ApiClientService } from '../api-client/api-client.service';
 import { FilterProductsDto } from './dto/filter-products.dto';
 import { DeletedProductsRepository } from './repository/deleted-products.repository';
+import {
+  ConflictException,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 
 describe('ProductsService', () => {
   let productsService: ProductsService;
   let productsRepository: ProductsRepository;
+  let deletedProductsRepository: DeletedProductsRepository;
   let apiClientService: ApiClientService;
 
   beforeEach(async () => {
@@ -19,6 +25,7 @@ describe('ProductsService', () => {
           useValue: {
             createProducts: jest.fn(),
             findFilteredProducts: jest.fn(),
+            findProductByProductSku: jest.fn(),
           },
         },
         {
@@ -39,6 +46,9 @@ describe('ProductsService', () => {
 
     productsService = module.get<ProductsService>(ProductsService);
     productsRepository = module.get<ProductsRepository>(ProductsRepository);
+    deletedProductsRepository = module.get<DeletedProductsRepository>(
+      DeletedProductsRepository,
+    );
     apiClientService = module.get<ApiClientService>(ApiClientService);
   });
 
@@ -132,5 +142,123 @@ describe('ProductsService', () => {
         pageSize: 10,
       },
     });
+  });
+
+  it('should throw an error when trying to delete a product that does not exist', async () => {
+    const productSku = 'nonexistentProduct';
+
+    (productsRepository.findProductByProductSku as jest.Mock).mockResolvedValue(
+      null,
+    );
+
+    (
+      deletedProductsRepository.findDeletedProductByProductSku as jest.Mock
+    ).mockResolvedValue(null);
+
+    await expect(productsService.deleteProduct(productSku)).rejects.toThrow(
+      NotFoundException,
+    );
+
+    expect(productsRepository.findProductByProductSku).toHaveBeenCalledWith(
+      productSku,
+    );
+    expect(
+      deletedProductsRepository.findDeletedProductByProductSku,
+    ).toHaveBeenCalled();
+  });
+
+  it('should throw a ConflictException when trying to delete a product that has already been deleted', async () => {
+    const productSku = 'alreadyDeletedProduct';
+
+    (
+      deletedProductsRepository.findDeletedProductByProductSku as jest.Mock
+    ).mockResolvedValue({
+      productSku: productSku,
+    });
+
+    await expect(productsService.deleteProduct(productSku)).rejects.toThrow(
+      ConflictException,
+    );
+
+    expect(
+      deletedProductsRepository.findDeletedProductByProductSku,
+    ).toHaveBeenCalledWith(productSku);
+    expect(productsRepository.findProductByProductSku).not.toHaveBeenCalled();
+    expect(
+      deletedProductsRepository.createDeletedProduct,
+    ).not.toHaveBeenCalled();
+  });
+
+  it('should throw an InternalServerErrorException when an error occurs while deleting a product', async () => {
+    const productSku = 'testProduct';
+
+    (productsRepository.findProductByProductSku as jest.Mock).mockResolvedValue(
+      {
+        productSku: productSku,
+        productName: 'Test Product',
+        productBrand: 'Test Brand',
+        productModel: 'Test Model',
+        productCategory: 'Test Category',
+        productColor: 'Test Color',
+        productPrice: 100,
+        productCurrency: 'USD',
+        productStock: 10,
+      },
+    );
+
+    (
+      deletedProductsRepository.findDeletedProductByProductSku as jest.Mock
+    ).mockResolvedValue(null);
+
+    (
+      deletedProductsRepository.createDeletedProduct as jest.Mock
+    ).mockRejectedValue(new Error('Database error'));
+
+    await expect(productsService.deleteProduct(productSku)).rejects.toThrow(
+      InternalServerErrorException,
+    );
+
+    expect(productsRepository.findProductByProductSku).toHaveBeenCalledWith(
+      productSku,
+    );
+    expect(
+      deletedProductsRepository.findDeletedProductByProductSku,
+    ).toHaveBeenCalledWith(productSku);
+  });
+
+  it('should delete a product successfully', async () => {
+    const productSku = 'testProduct';
+
+    (
+      deletedProductsRepository.findDeletedProductByProductSku as jest.Mock
+    ).mockResolvedValue(null);
+
+    (productsRepository.findProductByProductSku as jest.Mock).mockResolvedValue(
+      {
+        productSku: productSku,
+        productName: 'Test Product',
+        productBrand: 'Test Brand',
+        productModel: 'Test Model',
+        productCategory: 'Test Category',
+        productColor: 'Test Color',
+        productPrice: 100,
+        productCurrency: 'USD',
+        productStock: 10,
+      },
+    );
+
+    await productsService.deleteProduct(productSku);
+
+    expect(
+      deletedProductsRepository.findDeletedProductByProductSku,
+    ).toHaveBeenCalledWith(productSku);
+
+    expect(productsRepository.findProductByProductSku).toHaveBeenCalledWith(
+      productSku,
+    );
+
+    expect(deletedProductsRepository.createDeletedProduct).toHaveBeenCalledWith(
+      productSku,
+    );
   });
 });
