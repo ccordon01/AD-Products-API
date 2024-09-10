@@ -253,4 +253,33 @@ export class ProductsService {
       }
     }
   }
+
+  async totalProductsByProductBrand() {
+    try {
+      const totalProductsByProductBrand =
+        await this.productsRepository.totalProductsByProductBrand();
+      const totalProducts = await this.productsRepository.countProducts();
+
+      return {
+        data: {
+          totalProducts,
+        },
+        totalProductsByProductBrand: totalProductsByProductBrand.map(
+          (brand) => ({
+            productBrand: brand.productBrand,
+            totalProducts: brand.count,
+          }),
+        ),
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        this.logger.error('Error fetching product brand report:', error);
+        throw new InternalServerErrorException(
+          'An error occurred while fetching product brand report.',
+        );
+      }
+    }
+  }
 }

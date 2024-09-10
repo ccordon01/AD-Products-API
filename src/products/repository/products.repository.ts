@@ -182,4 +182,30 @@ export class ProductsRepository {
 
     return count;
   }
+
+  async totalProductsByProductBrand(): Promise<
+    { productBrand: string; count: number }[]
+  > {
+    const result = await this.productModel
+      .aggregate([
+        {
+          $group: {
+            _id: '$productBrand',
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            productBrand: '$_id',
+            count: 1,
+          },
+        },
+        {
+          $sort: { productBrand: 1 },
+        },
+      ])
+      .exec();
+
+    return result;
+  }
 }

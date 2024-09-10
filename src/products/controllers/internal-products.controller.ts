@@ -24,4 +24,9 @@ export class InternalProductsController {
       nonDeletedProductsReportDto,
     );
   }
+
+  @Get('total-products-by-brand')
+  totalProductsByProductBrand(): Promise<any> {
+    return this.productsService.totalProductsByProductBrand();
+  }
 }
