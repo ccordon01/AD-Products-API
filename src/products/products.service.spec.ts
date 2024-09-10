@@ -3,6 +3,7 @@ import { ProductsService } from './products.service';
 import { ProductsRepository } from './repository/products.repository';
 import { ApiClientService } from '../api-client/api-client.service';
 import { FilterProductsDto } from './dto/filter-products.dto';
+import { DeletedProductsRepository } from './repository/deleted-products.repository';
 
 describe('ProductsService', () => {
   let productsService: ProductsService;
@@ -18,6 +19,13 @@ describe('ProductsService', () => {
           useValue: {
             createProducts: jest.fn(),
             findFilteredProducts: jest.fn(),
+          },
+        },
+        {
+          provide: DeletedProductsRepository,
+          useValue: {
+            createDeletedProduct: jest.fn(),
+            findDeletedProductByProductSku: jest.fn(),
           },
         },
         {
