@@ -31,12 +31,26 @@ export class ProductsRepository {
 
   async findFilteredProducts(
     filterProductsDto: FilterProductsDto,
+    excludeProductSkus: string[] = [],
   ): Promise<any> {
     const { skip, limit } = filterProductsDto;
-    const query = {};
+    let query = {};
 
     if (filterProductsDto.productSku) {
       query['productSku'] = filterProductsDto.productSku;
+    }
+
+    if (excludeProductSkus.length) {
+      query['productSku'] = { $nin: excludeProductSkus };
+    }
+
+    if (filterProductsDto.productSku && excludeProductSkus.length) {
+      query = {
+        $and: [
+          { productSku: filterProductsDto.productSku },
+          { productSku: { $nin: excludeProductSkus } },
+        ],
+      };
     }
 
     if (filterProductsDto.productName) {

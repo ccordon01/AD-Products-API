@@ -3,7 +3,7 @@ import { ProductsRepository } from './products.repository';
 import { Product } from './schemas/product.schema';
 import { Model } from 'mongoose';
 
-describe('findFilteredProducts method', () => {
+describe('ProductsRepository', () => {
   let productModel: jest.Mocked<Model<Product>>;
   let productsRepository: ProductsRepository;
 

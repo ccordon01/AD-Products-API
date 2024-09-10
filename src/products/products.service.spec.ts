@@ -31,6 +31,7 @@ describe('ProductsService', () => {
         {
           provide: DeletedProductsRepository,
           useValue: {
+            findAllDeletedProducts: jest.fn(),
             createDeletedProduct: jest.fn(),
             findDeletedProductByProductSku: jest.fn(),
           },
@@ -139,7 +140,7 @@ describe('ProductsService', () => {
         totalItems: 10,
         totalPages: 1,
         currentPage: 1,
-        pageSize: 10,
+        pageSize: 1,
       },
     });
   });

@@ -44,8 +44,14 @@ export class ProductsService {
     filterProductsDto: FilterProductsDto,
   ): Promise<ResponseFilterProductsDto> {
     const { skip, limit } = filterProductsDto;
+
+    const excludeProductSkus =
+      await this.deletedProductsRepository.findAllDeletedProducts();
     const { totalCount, products: _products } =
-      await this.productsRepository.findFilteredProducts(filterProductsDto);
+      await this.productsRepository.findFilteredProducts(
+        filterProductsDto,
+        excludeProductSkus?.map((product) => product.productSku),
+      );
 
     const products = productsRepositoryMapper(_products);
 
@@ -57,7 +63,7 @@ export class ProductsService {
         totalItems: totalCount,
         totalPages,
         currentPage,
-        pageSize: limit,
+        pageSize: products.length,
       },
     };
   }
