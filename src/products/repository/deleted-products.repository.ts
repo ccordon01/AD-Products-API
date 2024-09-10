@@ -15,10 +15,7 @@ export class DeletedProductsRepository {
   }
 
   async createDeletedProduct(productSku: string): Promise<DeletedProduct> {
-    const createdDeletedProduct = new this.deletedProductModel({
-      productSku,
-    });
-    return createdDeletedProduct.save();
+    return this.deletedProductModel.create({ productSku });
   }
 
   async findDeletedProductByProductSku(
