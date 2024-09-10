@@ -27,6 +27,9 @@ describe('ProductsRepository', () => {
       findOne: jest.fn().mockReturnValue({
         exec: jest.fn().mockResolvedValue(null),
       }),
+      aggregate: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      }),
     } as unknown as jest.Mocked<Model<Product>>;
 
     productsRepository = new ProductsRepository(productModel);
@@ -427,5 +430,48 @@ describe('ProductsRepository', () => {
 
     expect(result).toEqual(mockProduct);
     expect(productModel.findOne).toHaveBeenCalledWith({ productSku });
+  });
+
+  it('should count products by product SKUs successfully', async () => {
+    const productSkus = ['sku1', 'sku2', 'sku3'];
+    const expectedCount = 3;
+
+    (productModel.countDocuments as jest.Mock).mockReturnValue({
+      exec: jest.fn().mockResolvedValue(expectedCount),
+    });
+
+    const result =
+      await productsRepository.countProductsByProductSku(productSkus);
+
+    expect(result).toEqual(expectedCount);
+    expect(productModel.countDocuments).toHaveBeenCalledWith({
+      productSku: { $in: productSkus },
+    });
+  });
+
+  it('should count all unique product SKUs successfully', async () => {
+    const expectedCount = 3;
+
+    (productModel.aggregate as jest.Mock).mockReturnValue({
+      exec: jest.fn().mockResolvedValue([
+        {
+          uniqueSkusCount: expectedCount,
+        },
+      ]),
+    });
+
+    const result = await productsRepository.countAllUniqueProductSkus();
+
+    expect(result).toEqual(expectedCount);
+    expect(productModel.aggregate).toHaveBeenCalledWith([
+      {
+        $group: {
+          _id: '$productSku',
+        },
+      },
+      {
+        $count: 'uniqueSkusCount',
+      },
+    ]);
   });
 });

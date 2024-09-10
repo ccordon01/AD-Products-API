@@ -77,6 +77,10 @@ describe('ProductsService', () => {
     (apiClientService.fetchProducts as jest.Mock).mockResolvedValue({
       items: mockProducts,
     });
+    (
+      deletedProductsRepository.findAllDeletedProducts as jest.Mock
+    ).mockResolvedValue([]);
+
     await productsService.fetchAndSaveProducts();
 
     expect(productsRepository.createProducts).toHaveBeenCalledWith([

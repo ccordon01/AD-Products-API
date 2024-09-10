@@ -17,9 +17,7 @@ describe('DeletedProductsRepository', () => {
         limit: jest.fn().mockReturnThis(),
         exec: jest.fn(),
       }),
-      countDocuments: jest.fn().mockReturnValue({
-        exec: jest.fn(),
-      }),
+      countDocuments: jest.fn().mockResolvedValue(0),
       findOne: jest.fn().mockReturnValue({
         exec: jest.fn().mockResolvedValue(null),
       }),
