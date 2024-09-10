@@ -17,8 +17,8 @@ import { ResponseDeletedProductsPercentageDto } from './dto/response-deleted-pro
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { NonDeletedProductsReportDto } from './dto/count-products-for-non-deleted-products-report.dto';
 import { ResponseNonDeletedProductsPercentageDto } from './dto/response-non-deleted-products-percentage.dto';
-import { startOfDayUTC } from 'src/utils/start-of-day-utc';
-import { endOfDayUTC } from 'src/utils/end-of-day-utc';
+import { startOfDayUTC } from '../utils/start-of-day-utc';
+import { endOfDayUTC } from '../utils/end-of-day-utc';
 
 @Injectable()
 export class ProductsService {
