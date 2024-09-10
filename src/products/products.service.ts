@@ -12,6 +12,7 @@ import { FilterProductsDto } from './dto/filter-products.dto';
 import { productsRepositoryMapper } from './helpers/mappers/products-repository.mapper';
 import { ResponseFilterProductsDto } from './dto/response-filter-products.dto';
 import { DeletedProductsRepository } from './repository/deleted-products.repository';
+import { ResponseDeletedProductsPercentageDto } from './dto/response-deleted-products-percentage.dto';
 
 @Injectable()
 export class ProductsService {
@@ -114,7 +115,7 @@ export class ProductsService {
     }
   }
 
-  async percentageDeletedProducts() {
+  async percentageDeletedProducts(): Promise<ResponseDeletedProductsPercentageDto> {
     const deletedProducts =
       await this.deletedProductsRepository.findAllDeletedProducts();
     const totalDeletedProducts =
