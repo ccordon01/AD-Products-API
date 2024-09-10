@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { FilterProductsDto } from '../dto/filter-products.dto';
+import { CountProductsForNonDeletedProductsReportRepositoryDto } from '../dto/count-products-for-non-deleted-products-report.dto';
 
 @Injectable()
 export class ProductsRepository {
@@ -145,5 +146,40 @@ export class ProductsRepository {
       .exec();
 
     return result.length > 0 ? result[0].uniqueSkusCount : 0;
+  }
+  async countProductsForNonDeletedProductsReport(
+    countProductsForNonDeletedProductsReportRepositoryDto: CountProductsForNonDeletedProductsReportRepositoryDto,
+  ): Promise<number> {
+    const {
+      productWithPrice,
+      productCreatedAtStartDate,
+      productCreatedAtEndDate,
+      excludeProductSkus,
+    } = countProductsForNonDeletedProductsReportRepositoryDto;
+    const query = {};
+
+    if (productWithPrice === true) {
+      query['productPrice'] = { $exists: true, $ne: null };
+    } else if (productWithPrice === false) {
+      query['$or'] = [
+        { productPrice: { $exists: false } },
+        { productPrice: null },
+      ];
+    }
+
+    if (productCreatedAtStartDate && productCreatedAtEndDate) {
+      query['productCreatedAt'] = {
+        $gte: productCreatedAtStartDate,
+        $lte: productCreatedAtEndDate,
+      };
+    }
+
+    if (excludeProductSkus.length) {
+      query['productSku'] = { $nin: excludeProductSkus };
+    }
+
+    const count = await this.productModel.countDocuments(query).exec();
+
+    return count;
   }
 }

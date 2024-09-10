@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   HttpException,
   Injectable,
@@ -14,6 +15,10 @@ import { ResponseFilterProductsDto } from './dto/response-filter-products.dto';
 import { DeletedProductsRepository } from './repository/deleted-products.repository';
 import { ResponseDeletedProductsPercentageDto } from './dto/response-deleted-products-percentage.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { NonDeletedProductsReportDto } from './dto/count-products-for-non-deleted-products-report.dto';
+import { ResponseNonDeletedProductsPercentageDto } from './dto/response-non-deleted-products-percentage.dto';
+import { startOfDayUTC } from 'src/utils/start-of-day-utc';
+import { endOfDayUTC } from 'src/utils/end-of-day-utc';
 
 @Injectable()
 export class ProductsService {
@@ -127,42 +132,125 @@ export class ProductsService {
   }
 
   async percentageDeletedProducts(): Promise<ResponseDeletedProductsPercentageDto> {
-    const deletedProducts =
-      await this.deletedProductsRepository.findAllDeletedProducts();
-    const totalDeletedProducts =
-      await this.productsRepository.countProductsByProductSku(
-        deletedProducts.map((product) => product.productSku),
-      );
-    const totalProducts = await this.productsRepository.countProducts();
+    try {
+      const deletedProducts =
+        await this.deletedProductsRepository.findAllDeletedProducts();
+      const totalDeletedProducts =
+        await this.productsRepository.countProductsByProductSku(
+          deletedProducts.map((product) => product.productSku),
+        );
+      const totalProducts = await this.productsRepository.countProducts();
 
-    const totalUniqueProductSkus =
-      await this.productsRepository.countAllUniqueProductSkus();
+      const totalUniqueProductSkus =
+        await this.productsRepository.countAllUniqueProductSkus();
 
-    let percentageDeletedProducts = 0;
-    let percentageUniqueDeletedProducts = 0;
+      let percentageDeletedProducts = 0;
+      let percentageUniqueDeletedProducts = 0;
 
-    if (totalProducts > 0) {
-      percentageDeletedProducts = (totalDeletedProducts / totalProducts) * 100;
+      if (totalProducts > 0) {
+        percentageDeletedProducts =
+          (totalDeletedProducts / totalProducts) * 100;
+      }
+
+      if (totalUniqueProductSkus > 0) {
+        percentageUniqueDeletedProducts =
+          (deletedProducts.length / totalUniqueProductSkus) * 100;
+      }
+
+      return {
+        data: {
+          totalDeletedProducts,
+          totalProducts,
+          totalUniqueDeletedProduct: deletedProducts.length,
+          totalUniqueProductSkus,
+        },
+        deletedProductsPercentage: {
+          percentageDeletedProducts: `${percentageDeletedProducts.toFixed(2)}%`,
+          percentageUniqueDeletedProducts: `${percentageUniqueDeletedProducts.toFixed(
+            2,
+          )}%`,
+        },
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        this.logger.error('Error generating deleted products report:', error);
+        throw new InternalServerErrorException(
+          'An error occurred while generating deleted products report.',
+        );
+      }
     }
+  }
 
-    if (totalUniqueProductSkus > 0) {
-      percentageUniqueDeletedProducts =
-        (deletedProducts.length / totalUniqueProductSkus) * 100;
+  async percentageNonDeletedProducts(
+    nonDeletedProductsReportDto: NonDeletedProductsReportDto,
+  ): Promise<ResponseNonDeletedProductsPercentageDto> {
+    try {
+      const {
+        productWithPrice,
+        productCreatedAtEndDate,
+        productCreatedAtStartDate,
+      } = nonDeletedProductsReportDto;
+
+      if (
+        (productCreatedAtStartDate && !productCreatedAtEndDate) ||
+        (!productCreatedAtStartDate && productCreatedAtEndDate)
+      ) {
+        throw new BadRequestException(
+          'Both start and end dates must be provided together',
+        );
+      }
+
+      if (productCreatedAtStartDate > productCreatedAtEndDate) {
+        throw new BadRequestException(
+          'Start date cannot be greater than end date.',
+        );
+      }
+
+      const deletedProducts =
+        await this.deletedProductsRepository.findAllDeletedProducts();
+
+      const totalNonDeletedProducts =
+        await this.productsRepository.countProductsForNonDeletedProductsReport({
+          productWithPrice: productWithPrice ?? true,
+          productCreatedAtStartDate: startOfDayUTC(productCreatedAtStartDate),
+          productCreatedAtEndDate: endOfDayUTC(productCreatedAtEndDate),
+          excludeProductSkus: deletedProducts.map(
+            (product) => product.productSku,
+          ),
+        });
+
+      const totalProducts = await this.productsRepository.countProducts();
+
+      let percentageNonDeletedProducts = 0;
+
+      if (totalProducts > 0) {
+        percentageNonDeletedProducts =
+          (totalNonDeletedProducts / totalProducts) * 100;
+      }
+
+      return {
+        data: {
+          totalNonDeletedProducts,
+          totalProducts,
+        },
+        deletedNonProductsPercentage: {
+          percentageNonDeletedProducts: `${percentageNonDeletedProducts.toFixed(2)}%`,
+        },
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        this.logger.error(
+          'Error generating non-deleted products report:',
+          error,
+        );
+        throw new InternalServerErrorException(
+          'An error occurred while generating non-deleted products report.',
+        );
+      }
     }
-
-    return {
-      data: {
-        totalDeletedProducts,
-        totalProducts,
-        totalUniqueDeletedProduct: deletedProducts.length,
-        totalUniqueProductSkus,
-      },
-      deletedProductsPercentage: {
-        percentageDeletedProducts: `${percentageDeletedProducts.toFixed(2)}%`,
-        percentageUniqueDeletedProducts: `${percentageUniqueDeletedProducts.toFixed(
-          2,
-        )}%`,
-      },
-    };
   }
 }

@@ -21,7 +21,7 @@ export class Product extends Document {
   @Prop()
   productColor: string;
 
-  @Prop({ required: true })
+  @Prop()
   productPrice: number;
 
   @Prop()
