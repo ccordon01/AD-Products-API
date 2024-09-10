@@ -1,6 +1,7 @@
 import { IsOptional, IsString, Min } from 'class-validator';
+import { PaginationDto } from '../../shared/dto/pagination.dto';
 
-export class FilterProductsDto {
+export class FilterProductsDto extends PaginationDto {
   @IsOptional()
   @IsString()
   productSku?: string;

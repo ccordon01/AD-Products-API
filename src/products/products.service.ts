@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ProductsRepository } from './repository/products.repository';
 import { ApiClientService } from '../api-client/api-client.service';
+import { FilterProductsDto } from './dto/filter-products.dto';
+import { productsRepositoryMapper } from './helpers/mappers/products-repository.mapper';
+import { ResponseFilterProductsDto } from './dto/response-filter-products.dto';
 
 @Injectable()
 export class ProductsService {
@@ -24,5 +27,27 @@ export class ProductsService {
         productStock: product.stock,
       })),
     );
+  }
+
+  async findFilteredProducts(
+    filterProductsDto: FilterProductsDto,
+  ): Promise<ResponseFilterProductsDto> {
+    const { skip, limit } = filterProductsDto;
+    const { totalCount, products: _products } =
+      await this.productsRepository.findFilteredProducts(filterProductsDto);
+
+    const products = productsRepositoryMapper(_products);
+
+    const totalPages = Math.ceil(totalCount / limit);
+    const currentPage = skip / limit + 1;
+    return {
+      data: products,
+      meta: {
+        totalItems: totalCount,
+        totalPages,
+        currentPage,
+        pageSize: limit,
+      },
+    };
   }
 }
