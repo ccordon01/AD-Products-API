@@ -1,4 +1,5 @@
 import { IsOptional, IsString, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 import { PaginationDto } from '../../shared/dto/pagination.dto';
 
 export class FilterProductsDto extends PaginationDto {
@@ -27,10 +28,12 @@ export class FilterProductsDto extends PaginationDto {
   productColor?: string;
 
   @IsOptional()
+  @Type(() => Number)
   @Min(0)
   productMinPrice?: number;
 
   @IsOptional()
+  @Type(() => Number)
   @Min(0)
   productMaxPrice?: number;
 
@@ -39,10 +42,12 @@ export class FilterProductsDto extends PaginationDto {
   productCurrency?: string;
 
   @IsOptional()
+  @Type(() => Number)
   @Min(0)
   productMinStock?: number;
 
   @IsOptional()
+  @Type(() => Number)
   @Min(0)
   productMaxStock?: number;
 }

@@ -30,8 +30,8 @@ export class Product extends Document {
   @Prop()
   productStock: number;
 
-  @Prop({ default: false })
-  productRemoved: boolean;
+  @Prop({ default: Date.now })
+  ProductCreatedAt: Date;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

@@ -1,0 +1,23 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { DeletedProduct } from './schemas/deleted-product.schema';
+import { Model } from 'mongoose';
+
+@Injectable()
+export class DeletedProductsRepository {
+  constructor(
+    @InjectModel(DeletedProduct.name)
+    private deletedProductModel: Model<DeletedProduct>,
+  ) {}
+
+  async findAllDeletedProducts(): Promise<DeletedProduct[]> {
+    return this.deletedProductModel.find().exec();
+  }
+
+  async createDeletedProduct(productSku: string): Promise<DeletedProduct> {
+    const createdDeletedProduct = new this.deletedProductModel({
+      productSku,
+    });
+    return createdDeletedProduct.save();
+  }
+}
