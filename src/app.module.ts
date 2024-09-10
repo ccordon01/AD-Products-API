@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ApiClientModule } from './api-client/api-client.module';
 import {
+  InternalProductsModule,
   ProductsModule,
   PublicProductsModule,
 } from './products/products.module';
@@ -15,10 +16,15 @@ import { RouterModule } from '@nestjs/core';
     ApiClientModule,
     ProductsModule,
     PublicProductsModule,
+    InternalProductsModule,
     RouterModule.register([
       {
         path: 'public',
         module: PublicProductsModule,
+      },
+      {
+        path: 'internal',
+        module: InternalProductsModule,
       },
     ]),
   ],

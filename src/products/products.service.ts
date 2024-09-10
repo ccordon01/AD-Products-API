@@ -25,19 +25,34 @@ export class ProductsService {
 
   async fetchAndSaveProducts(): Promise<void> {
     const productsFromApi = await this.apiClientService.fetchProducts();
-    await this.productsRepository.createProducts(
-      productsFromApi?.items.map(({ fields: product }) => ({
-        productSku: product.sku,
-        productName: product.name,
-        productBrand: product.brand,
-        productModel: product.model,
-        productCategory: product.category,
-        productColor: product.color,
-        productPrice: product.price,
-        productCurrency: product.currency,
-        productStock: product.stock,
-      })),
+    const deletedProducts =
+      await this.deletedProductsRepository.findAllDeletedProducts();
+    const deletedProductSkus = deletedProducts.map(
+      (product) => product.productSku,
     );
+
+    const newProducts = productsFromApi?.items.reduce(
+      (acc, { fields: product }) => {
+        const productSku = product.sku;
+        if (!deletedProductSkus.includes(productSku)) {
+          acc.push({
+            productSku,
+            productName: product.name,
+            productBrand: product.brand,
+            productModel: product.model,
+            productCategory: product.category,
+            productColor: product.color,
+            productPrice: product.price,
+            productCurrency: product.currency,
+            productStock: product.stock,
+          });
+        }
+        return acc;
+      },
+      [],
+    );
+
+    await this.productsRepository.createProducts(newProducts);
   }
 
   async findFilteredProducts(
@@ -97,5 +112,45 @@ export class ProductsService {
         );
       }
     }
+  }
+
+  async percentageDeletedProducts() {
+    const deletedProducts =
+      await this.deletedProductsRepository.findAllDeletedProducts();
+    const totalDeletedProducts =
+      await this.productsRepository.countProductsByProductSku(
+        deletedProducts.map((product) => product.productSku),
+      );
+    const totalProducts = await this.productsRepository.countProducts();
+
+    const totalUniqueProductSkus =
+      await this.productsRepository.countAllUniqueProductSkus();
+
+    let percentageDeletedProducts = 0;
+    let percentageUniqueDeletedProducts = 0;
+
+    if (totalProducts > 0) {
+      percentageDeletedProducts = (totalDeletedProducts / totalProducts) * 100;
+    }
+
+    if (totalUniqueProductSkus > 0) {
+      percentageUniqueDeletedProducts =
+        (deletedProducts.length / totalUniqueProductSkus) * 100;
+    }
+
+    return {
+      data: {
+        totalDeletedProducts,
+        totalProducts,
+        totalUniqueDeletedProduct: deletedProducts.length,
+        totalUniqueProductSkus,
+      },
+      deletedProductsPercentage: {
+        percentageDeletedProducts: `${percentageDeletedProducts.toFixed(2)}%`,
+        percentageUniqueDeletedProducts: `${percentageUniqueDeletedProducts.toFixed(
+          2,
+        )}%`,
+      },
+    };
   }
 }

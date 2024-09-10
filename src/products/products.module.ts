@@ -10,6 +10,7 @@ import {
   DeletedProductSchema,
 } from './repository/schemas/deleted-product.schema';
 import { DeletedProductsRepository } from './repository/deleted-products.repository';
+import { InternalProductsController } from './controllers/internal-products.controller';
 
 @Module({
   imports: [
@@ -29,3 +30,9 @@ export class ProductsModule {}
   controllers: [PublicProductsController],
 })
 export class PublicProductsModule {}
+
+@Module({
+  imports: [ProductsModule],
+  controllers: [InternalProductsController],
+})
+export class InternalProductsModule {}

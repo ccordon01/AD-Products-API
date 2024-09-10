@@ -120,4 +120,30 @@ export class ProductsRepository {
   async findProductByProductSku(productSku: string): Promise<Product> {
     return this.productModel.findOne({ productSku }).exec();
   }
+
+  async countProductsByProductSku(productSkus: string[]): Promise<number> {
+    const count = await this.productModel
+      .countDocuments({
+        productSku: { $in: productSkus },
+      })
+      .exec();
+    return count;
+  }
+
+  async countAllUniqueProductSkus(): Promise<number> {
+    const result = await this.productModel
+      .aggregate([
+        {
+          $group: {
+            _id: '$productSku',
+          },
+        },
+        {
+          $count: 'uniqueSkusCount',
+        },
+      ])
+      .exec();
+
+    return result.length > 0 ? result[0].uniqueSkusCount : 0;
+  }
 }
