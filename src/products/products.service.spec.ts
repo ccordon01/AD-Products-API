@@ -2,9 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProductsService } from './products.service';
 import { ProductsRepository } from './repository/products.repository';
 import { ApiClientService } from '../api-client/api-client.service';
+import { FilterProductsDto } from './dto/filter-products.dto';
 
 describe('ProductsService', () => {
-  let service: ProductsService;
+  let productsService: ProductsService;
   let productsRepository: ProductsRepository;
   let apiClientService: ApiClientService;
 
@@ -16,6 +17,7 @@ describe('ProductsService', () => {
           provide: ProductsRepository,
           useValue: {
             createProducts: jest.fn(),
+            findFilteredProducts: jest.fn(),
           },
         },
         {
@@ -27,13 +29,13 @@ describe('ProductsService', () => {
       ],
     }).compile();
 
-    service = module.get<ProductsService>(ProductsService);
+    productsService = module.get<ProductsService>(ProductsService);
     productsRepository = module.get<ProductsRepository>(ProductsRepository);
     apiClientService = module.get<ApiClientService>(ApiClientService);
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(productsService).toBeDefined();
   });
 
   it('should fetch and save products correctly when the API returns valid data', async () => {
@@ -56,7 +58,7 @@ describe('ProductsService', () => {
     (apiClientService.fetchProducts as jest.Mock).mockResolvedValue({
       items: mockProducts,
     });
-    await service.fetchAndSaveProducts();
+    await productsService.fetchAndSaveProducts();
 
     expect(productsRepository.createProducts).toHaveBeenCalledWith([
       {
@@ -71,5 +73,56 @@ describe('ProductsService', () => {
         productStock: 10,
       },
     ]);
+  });
+
+  it('should return products correctly', async () => {
+    const filterProductsDto: FilterProductsDto = {
+      skip: 0,
+      limit: 10,
+      productBrand: 'Test Brand',
+      productCategory: 'Test Category',
+    };
+
+    (productsRepository.findFilteredProducts as jest.Mock).mockResolvedValue({
+      totalCount: 10,
+      products: [
+        {
+          productSku: '12345',
+          productName: 'Test Product',
+          productBrand: 'Test Brand',
+          productModel: 'Test Model',
+          productCategory: 'Test Category',
+          productColor: 'Test Color',
+          productPrice: 100,
+          productCurrency: 'USD',
+          productStock: 10,
+        },
+      ],
+    });
+
+    const result =
+      await productsService.findFilteredProducts(filterProductsDto);
+
+    expect(result).toEqual({
+      data: [
+        {
+          productSku: '12345',
+          productName: 'Test Product',
+          productBrand: 'Test Brand',
+          productModel: 'Test Model',
+          productCategory: 'Test Category',
+          productColor: 'Test Color',
+          productPrice: 100,
+          productCurrency: 'USD',
+          productStock: 10,
+        },
+      ],
+      meta: {
+        totalItems: 10,
+        totalPages: 1,
+        currentPage: 1,
+        pageSize: 10,
+      },
+    });
   });
 });
