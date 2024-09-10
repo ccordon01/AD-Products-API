@@ -7,7 +7,7 @@ export class DeletedProduct extends Document {
   productSku: string;
 
   @Prop({ default: Date.now })
-  ProductDeletedAt: Date;
+  productDeletedAt: Date;
 }
 
 export const DeletedProductSchema =

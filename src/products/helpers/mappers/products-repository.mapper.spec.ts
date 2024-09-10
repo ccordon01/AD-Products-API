@@ -13,6 +13,8 @@ describe('productsRepositoryMapper', () => {
   });
 
   it('should return an array with multiple items when the input contains multiple valid products', () => {
+    const productCreatedAt = new Date();
+
     const input: Partial<Product>[] = [
       {
         productSku: '12345',
@@ -24,6 +26,7 @@ describe('productsRepositoryMapper', () => {
         productPrice: 100,
         productCurrency: 'USD',
         productStock: 10,
+        productCreatedAt,
       },
       {
         productSku: '67890',
@@ -35,6 +38,7 @@ describe('productsRepositoryMapper', () => {
         productPrice: 200,
         productCurrency: 'EUR',
         productStock: 5,
+        productCreatedAt,
       },
     ];
 
@@ -49,6 +53,7 @@ describe('productsRepositoryMapper', () => {
         productPrice: 100,
         productCurrency: 'USD',
         productStock: 10,
+        productCreatedAt,
       },
       {
         productSku: '67890',
@@ -60,6 +65,7 @@ describe('productsRepositoryMapper', () => {
         productPrice: 200,
         productCurrency: 'EUR',
         productStock: 5,
+        productCreatedAt,
       },
     ];
 

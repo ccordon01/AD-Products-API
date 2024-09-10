@@ -95,6 +95,7 @@ describe('PublicProductsController', () => {
           productPrice: 100,
           productCurrency: 'USD',
           productStock: 10,
+          productCreatedAt: new Date(),
         },
       ],
       meta: { currentPage: 1, totalItems: 1, totalPages: 1, pageSize: 5 },
@@ -129,6 +130,7 @@ describe('PublicProductsController', () => {
           productPrice: 100,
           productCurrency: 'USD',
           productStock: 10,
+          productCreatedAt: new Date(),
         },
         {
           productSku: '12346',
@@ -140,6 +142,7 @@ describe('PublicProductsController', () => {
           productPrice: 150,
           productCurrency: 'USD',
           productStock: 20,
+          productCreatedAt: new Date(),
         },
         {
           productSku: '12347',
@@ -151,6 +154,7 @@ describe('PublicProductsController', () => {
           productPrice: 200,
           productCurrency: 'USD',
           productStock: 30,
+          productCreatedAt: new Date(),
         },
         {
           productSku: '12348',
@@ -162,6 +166,7 @@ describe('PublicProductsController', () => {
           productPrice: 250,
           productCurrency: 'USD',
           productStock: 40,
+          productCreatedAt: new Date(),
         },
         {
           productSku: '12349',
@@ -173,6 +178,7 @@ describe('PublicProductsController', () => {
           productPrice: 300,
           productCurrency: 'USD',
           productStock: 50,
+          productCreatedAt: new Date(),
         },
       ],
       meta: { currentPage: 1, totalItems: 10, totalPages: 1, pageSize: 5 },

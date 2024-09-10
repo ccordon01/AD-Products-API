@@ -8,4 +8,5 @@ export interface IProducts {
   productPrice: number;
   productCurrency: string;
   productStock: number;
+  productCreatedAt: Date;
 }

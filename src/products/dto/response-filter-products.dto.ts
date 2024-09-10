@@ -20,4 +20,5 @@ class ProductsDto implements IProducts {
   productPrice: number;
   productCurrency: string;
   productStock: number;
+  productCreatedAt: Date;
 }

@@ -16,5 +16,6 @@ export function productsRepositoryMapper(products: Product[]): IProducts[] {
     productPrice: product.productPrice,
     productCurrency: product.productCurrency,
     productStock: product.productStock,
+    productCreatedAt: product.productCreatedAt,
   }));
 }
