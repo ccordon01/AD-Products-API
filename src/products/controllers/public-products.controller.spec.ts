@@ -18,6 +18,8 @@ describe('PublicProductsController', () => {
           useValue: {
             createProducts: jest.fn(),
             findFilteredProducts: jest.fn(),
+            fetchAndSaveProducts: jest.fn().mockResolvedValue(null),
+            deleteProduct: jest.fn().mockResolvedValue(null),
           },
         },
         {
@@ -44,6 +46,12 @@ describe('PublicProductsController', () => {
 
   it('should be defined', () => {
     expect(publicProductsController).toBeDefined();
+  });
+
+  it('should call fetchAndSaveProducts method from ProductsService', async () => {
+    await publicProductsController.fetchAndSaveProducts();
+
+    expect(productsService.fetchAndSaveProducts).toHaveBeenCalled();
   });
 
   it('should return an empty array when no products match the filter criteria', async () => {
@@ -179,5 +187,14 @@ describe('PublicProductsController', () => {
     );
 
     expect(result).toEqual(mockResponseFilterProductsDto);
+  });
+
+  it('should delete a product successfully', async () => {
+    const productSku = '12345';
+
+    await publicProductsController.deleteProduct(productSku);
+
+    expect(productsService.deleteProduct).toHaveBeenCalledWith(productSku);
+    expect(productsService.deleteProduct).toHaveBeenCalledTimes(1);
   });
 });

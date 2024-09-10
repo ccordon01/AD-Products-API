@@ -289,4 +289,65 @@ describe('ApiClientService', () => {
       ],
     });
   });
+
+  it('should handle server errors (5xx status codes)', async () => {
+    const mockHttpService = {
+      get: jest.fn().mockReturnValue(
+        throwError(() => ({
+          response: {
+            status: 500,
+            data: 'Server error',
+          },
+        })),
+      ),
+    };
+
+    const service = new ApiClientService(mockHttpService as any);
+
+    try {
+      await service.fetchProducts();
+    } catch (error) {
+      expect(error).toEqual('Server error');
+    }
+  });
+
+  it('should handle the request was made but no response was received', async () => {
+    const mockHttpService = {
+      get: jest.fn().mockReturnValue(
+        throwError(() => ({
+          request: 'Mock XMLHttpRequest',
+        })),
+      ),
+    };
+
+    const service = new ApiClientService(mockHttpService as any);
+
+    try {
+      await service.fetchProducts();
+    } catch (error) {
+      expect(error).toEqual('Mock XMLHttpRequest');
+    }
+  });
+
+  it('should handle something happened in setting up the request that triggered an Error', async () => {
+    const mockHttpService = {
+      get: jest.fn().mockReturnValue(
+        throwError(() => ({
+          response: undefined,
+          request: undefined,
+        })),
+      ),
+    };
+
+    const service = new ApiClientService(mockHttpService as any);
+
+    try {
+      await service.fetchProducts();
+    } catch (error) {
+      expect(error).toEqual({
+        status: undefined,
+        message: undefined,
+      });
+    }
+  });
 });
