@@ -9,10 +9,12 @@ import {
 } from './products/products.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RouterModule } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     MongooseModule.forRoot(process.env.MONGODB_URI),
+    ScheduleModule.forRoot(),
     ApiClientModule,
     ProductsModule,
     PublicProductsModule,

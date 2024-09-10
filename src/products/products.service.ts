@@ -13,6 +13,7 @@ import { productsRepositoryMapper } from './helpers/mappers/products-repository.
 import { ResponseFilterProductsDto } from './dto/response-filter-products.dto';
 import { DeletedProductsRepository } from './repository/deleted-products.repository';
 import { ResponseDeletedProductsPercentageDto } from './dto/response-deleted-products-percentage.dto';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class ProductsService {
@@ -54,6 +55,16 @@ export class ProductsService {
     );
 
     await this.productsRepository.createProducts(newProducts);
+  }
+
+  @Cron(CronExpression.EVERY_HOUR)
+  async fetchAndSaveProductsHourly() {
+    this.logger.log('Initiating Product Synchronization.');
+    try {
+      await this.fetchAndSaveProducts();
+    } catch (error) {
+      this.logger.error(`Error fetching and saving products: ${error.message}`);
+    }
   }
 
   async findFilteredProducts(
