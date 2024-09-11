@@ -5,6 +5,7 @@ import { ResponseDeletedProductsPercentageDto } from '../dto/response-deleted-pr
 import { NonDeletedProductsReportDto } from '../dto/count-products-for-non-deleted-products-report.dto';
 import { ResponseNonDeletedProductsPercentageDto } from '../dto/response-non-deleted-products-percentage.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { ResponseTotalProductsByProductBrandDto } from '../dto/reponse-total-products-by-proudct-brand.dto';
 
 @ApiTags('Internal')
 @Controller('products')
@@ -29,7 +30,7 @@ export class InternalProductsController {
   }
 
   @Get('total-products-by-brand')
-  totalProductsByProductBrand(): Promise<any> {
+  totalProductsByProductBrand(): Promise<ResponseTotalProductsByProductBrandDto> {
     return this.productsService.totalProductsByProductBrand();
   }
 }
