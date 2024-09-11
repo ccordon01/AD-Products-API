@@ -10,6 +10,7 @@ import {
 import { MongooseModule } from '@nestjs/mongoose';
 import { RouterModule } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -19,7 +20,12 @@ import { ScheduleModule } from '@nestjs/schedule';
     ProductsModule,
     PublicProductsModule,
     InternalProductsModule,
+    AuthModule,
     RouterModule.register([
+      {
+        path: 'internal',
+        module: AuthModule,
+      },
       {
         path: 'public',
         module: PublicProductsModule,

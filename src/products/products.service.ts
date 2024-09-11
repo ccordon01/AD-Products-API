@@ -214,8 +214,11 @@ export class ProductsService {
       const totalNonDeletedProducts =
         await this.productsRepository.countProductsForNonDeletedProductsReport({
           productWithPrice: productWithPrice ?? true,
-          productCreatedAtStartDate: startOfDayUTC(productCreatedAtStartDate),
-          productCreatedAtEndDate: endOfDayUTC(productCreatedAtEndDate),
+          productCreatedAtStartDate:
+            productCreatedAtStartDate &&
+            startOfDayUTC(productCreatedAtStartDate),
+          productCreatedAtEndDate:
+            productCreatedAtEndDate && endOfDayUTC(productCreatedAtEndDate),
           excludeProductSkus: deletedProducts.map(
             (product) => product.productSku,
           ),

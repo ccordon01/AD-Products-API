@@ -1,12 +1,15 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ProductsService } from '../products.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ResponseDeletedProductsPercentageDto } from '../dto/response-deleted-products-percentage.dto';
 import { NonDeletedProductsReportDto } from '../dto/count-products-for-non-deleted-products-report.dto';
 import { ResponseNonDeletedProductsPercentageDto } from '../dto/response-non-deleted-products-percentage.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Internal')
 @Controller('products')
+@UseGuards(AuthGuard())
+@ApiBearerAuth()
 export class InternalProductsController {
   constructor(private productsService: ProductsService) {}
 

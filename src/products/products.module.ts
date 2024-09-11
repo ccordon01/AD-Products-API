@@ -11,6 +11,7 @@ import {
 } from './repository/schemas/deleted-product.schema';
 import { DeletedProductsRepository } from './repository/deleted-products.repository';
 import { InternalProductsController } from './controllers/internal-products.controller';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ export class ProductsModule {}
 export class PublicProductsModule {}
 
 @Module({
-  imports: [ProductsModule],
+  imports: [ProductsModule, AuthModule],
   controllers: [InternalProductsController],
 })
 export class InternalProductsModule {}
