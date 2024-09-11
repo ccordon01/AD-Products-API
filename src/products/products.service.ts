@@ -19,7 +19,12 @@ import { NonDeletedProductsReportDto } from './dto/count-products-for-non-delete
 import { ResponseNonDeletedProductsPercentageDto } from './dto/response-non-deleted-products-percentage.dto';
 import { startOfDayUTC } from '../utils/start-of-day-utc';
 import { endOfDayUTC } from '../utils/end-of-day-utc';
+import { ResponseTotalProductsByProductBrandDto } from './dto/reponse-total-products-by-proudct-brand.dto';
 
+/**
+ * The ProductsService class is responsible for managing product-related operations.
+ * It interacts with the ApiClientService, ProductsRepository, and DeletedProductsRepository to fetch, save, filter, delete, and report on products.
+ */
 @Injectable()
 export class ProductsService {
   private readonly logger = new Logger(ProductsService.name);
@@ -30,6 +35,12 @@ export class ProductsService {
     private deletedProductsRepository: DeletedProductsRepository,
   ) {}
 
+  /**
+   * Fetches products from the API, compares them with the existing products in the database,
+   * and saves new products to the database.
+   *
+   * @returns {Promise<void>}
+   */
   async fetchAndSaveProducts(): Promise<void> {
     const productsFromApi = await this.apiClientService.fetchProducts();
     const deletedProducts =
@@ -62,6 +73,9 @@ export class ProductsService {
     await this.productsRepository.createProducts(newProducts);
   }
 
+  /**
+   * Fetches and saves products from the API every hour using a cron job.
+   */
   @Cron(CronExpression.EVERY_HOUR)
   async fetchAndSaveProductsHourly() {
     this.logger.log('Initiating Product Synchronization.');
@@ -72,6 +86,12 @@ export class ProductsService {
     }
   }
 
+  /**
+   * Filters products based on the provided filterProductsDto and returns them along with pagination information.
+   *
+   * @param {FilterProductsDto} filterProductsDto - The filter criteria for products.
+   * @returns {Promise<ResponseFilterProductsDto>} - The filtered products and pagination information.
+   */
   async findFilteredProducts(
     filterProductsDto: FilterProductsDto,
   ): Promise<ResponseFilterProductsDto> {
@@ -100,6 +120,12 @@ export class ProductsService {
     };
   }
 
+  /**
+   * Deletes a product with the given productSku.
+   *
+   * @param {string} productSku - The unique identifier of the product to be deleted.
+   * @returns {Promise<void>}
+   */
   async deleteProduct(productSku: string): Promise<void> {
     try {
       const deletedProduct =
@@ -131,6 +157,11 @@ export class ProductsService {
     }
   }
 
+  /**
+   * Calculates and returns the percentage of deleted products compared to the total number of products.
+   *
+   * @returns {Promise<ResponseDeletedProductsPercentageDto>} - The percentage of deleted products and additional information.
+   */
   async percentageDeletedProducts(): Promise<ResponseDeletedProductsPercentageDto> {
     try {
       const deletedProducts =
@@ -183,6 +214,12 @@ export class ProductsService {
     }
   }
 
+  /**
+   * Calculates and returns the percentage of non-deleted products compared to the total number of products.
+   *
+   * @param {NonDeletedProductsReportDto} nonDeletedProductsReportDto - The filter criteria for non-deleted products.
+   * @returns {Promise<ResponseNonDeletedProductsPercentageDto>} - The percentage of non-deleted products and additional information.
+   */
   async percentageNonDeletedProducts(
     nonDeletedProductsReportDto: NonDeletedProductsReportDto,
   ): Promise<ResponseNonDeletedProductsPercentageDto> {
@@ -257,7 +294,12 @@ export class ProductsService {
     }
   }
 
-  async totalProductsByProductBrand() {
+  /**
+   * Calculates and returns the total number of products for each product brand.
+   *
+   * @returns {Promise<ResponseTotalProductsByProductBrandDto>} - The total number of products for each product brand and additional information.
+   */
+  async totalProductsByProductBrand(): Promise<ResponseTotalProductsByProductBrandDto> {
     try {
       const totalProductsByProductBrand =
         await this.productsRepository.totalProductsByProductBrand();
